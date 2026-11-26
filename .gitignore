@@ -1,0 +1,42 @@
+# Runtime / personal state
+/data/
+/telemetry/
+/view.json
+/window.json
+/shared.json
+/seen.json
+
+# Generated / app-managed
+/frame/
+/icons/
+/layouts/.state/
+/AGENTS.md
+/gpui-kit.d.ts
+/herdr.d.ts
+/installed.json
+/update-notes.json
+/update-notes-media/
+
+# Personal preferences
+/keys.json
+/settings.json
+
+# Built-in layouts, themes, mods and their assets
+/layouts/*
+!/layouts/main-markdown-editor.json
+/themes/
+/mods/*
+
+# Custom mods worth sharing
+!/mods/files-markdown-editor/
+!/mods/spaces-shell-done/
+!/mods/tabs-shell-done/
+
+# Generated files inside custom mods
+/mods/*/gpui-kit.d.ts
+/mods/*/jsconfig.json
+
+# OS / editor noise
+.DS_Store
+*.log
+*.tmp
