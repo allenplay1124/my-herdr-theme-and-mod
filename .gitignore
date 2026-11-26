@@ -29,6 +29,8 @@
 
 # Custom mods worth sharing
 !/mods/files-markdown-editor/
+!/mods/files-menu/
+!/mods/files-settings/
 !/mods/spaces-shell-done/
 !/mods/tabs-shell-done/
 

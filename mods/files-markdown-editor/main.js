@@ -1,7 +1,7 @@
 // A lazy file browser with Markdown previews, block editing and source editing.
 import { View, div, svg } from "gpui-kit";
 import { v_flex, h_flex, Editor, EditorState, TextView } from "gpui-base";
-import { spaces, panes, focused, exec, readTextFile, writeTextFile, watchFolder, theme, settings, window, checking } from "herdr";
+import { spaces, panes, focused, exec, readTextFile, writeTextFile, watchFolder, theme, settings, window, checking, openOverlay, shared, setShared, run } from "herdr";
 import { isMarkdown, blocks as markdownBlocks, applyBlockEdit, selfCheck as checkMarkdown } from "./markdown.js";
 
 // The panels share data in one VM, but their host tasks belong to separate copies.
@@ -424,6 +424,11 @@ export default class Files extends View {
       const path = prefix ? `${prefix}/${entry.name}` : entry.name, open = this.folders.has(path), mark = this.marks[`${this.root}/${path}`];
       out.push(h_flex().id(`file-${path}`).h(28).flex_none().pl(8 + depth * 18).pr(8).gap(7).items_center().rounded(7).cursor_pointer().hover(s => s.bg(t.hover))
         .on_click((_e, cx) => entry.dir ? this.toggle(path, cx) : this.show(path, cx))
+        .on_mouse_down("right", (e, cx) => {
+          cx.stop_propagation();
+          run("overlay.close");
+          openOverlay({ mod: "files-menu", kind: "popup", at: e.position, width: 220, props: { root: this.root, path, on: this.on } });
+        })
         .child(entry.dir ? svg(`mods/files-markdown-editor/chevron-${open ? "down" : "right"}.svg`).size(12).flex_none().text_color(t.dim) : div().w(12).flex_none())
         .child(svg(`mods/files-markdown-editor/${entry.dir ? "folder" : "file"}.svg`).size(14).flex_none().text_color(t.muted))
         .child(div().flex_1().min_w(0).truncate().child(entry.name))
@@ -447,6 +452,9 @@ export default class Files extends View {
       .child(h_flex().h(44).flex_none().px(12).gap(6).items_center().border_b(1).border_color(t.border)
         .when(Boolean(this.file), el => el.child(div().id("files-back").w(18).cursor_pointer().text_color(t.muted).on_click((_e, cx) => { this.show(null, cx); cx.notify(); }).child("←")))
         .child(div().font_semibold().child("Files"))
+        .child(div().id("files-settings").w(24).cursor_pointer().text_color(t.muted).hover(s => s.text_color(t.foreground))
+          .on_click(() => { run("overlay.close"); openOverlay({ mod: "files-settings", kind: "dialog", width: 420, props: {} }); })
+          .child(svg("mods/workspace-chrome/settings.svg").size(14)))
         .when(this.md && this.editable, el => el.child(modeButton("md-visual", "視覺", "visual")).child(modeButton("md-source", "原始碼", "source")))
         .child(div().flex_1().min_w(0).truncate().text_right().text_size(12).text_color(t.dim).child(this.file ?? this.root?.split(/[\\/]/).pop() ?? ""))
         .when(this.md && this.editable, el => el.child(small("md-save", this.dirty ? "儲存" : "已儲存", this.dirty ? t.accent : t.dim, (_e, cx) => this.save(cx)))))
